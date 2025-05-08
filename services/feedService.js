@@ -53,4 +53,4 @@ async function getRedditPosts(subreddit) {
   }
 }
 
-module.exports = { fetchTwitterPosts, fetchRedditPosts, getRedditPosts };
+module.exports = { fetchTwitterPosts, getRedditPosts };
