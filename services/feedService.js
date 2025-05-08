@@ -3,7 +3,7 @@ const axios = require("axios");
 async function fetchTwitterPosts(query = "javascript") {
   try {
     const baseUrl = "https://api.twitter.com/2/tweets/search/recent";
-    const params = new URLSearchParams({ query, max_results: "10" });
+    const params = new URLSearchParams({ query, max_results: "2" });
     const url = `${baseUrl}?${params.toString()}`;
     console.log("→ Twitter URL:", url);
 
@@ -25,7 +25,7 @@ async function fetchTwitterPosts(query = "javascript") {
   }
 }
 
-async function fetchRedditPosts(subreddit = "javascript") {
+async function fetchRedditPosts(subreddit) {
   try {
     const url = `https://www.reddit.com/r/${encodeURIComponent(
       subreddit
@@ -40,8 +40,13 @@ async function fetchRedditPosts(subreddit = "javascript") {
       source: "reddit",
     }));
   } catch (err) {
-    console.error("Error in fetchRedditPosts:", err.message);
-    throw err;
+    // Show status + body if we got a non-2xx response
+    console.error(
+      "Error in fetchRedditPosts:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+    return [];
   }
 }
 

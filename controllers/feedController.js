@@ -63,9 +63,16 @@ const getFeed = async (req, res) => {
     return res.json(payload);
   } catch (error) {
     console.error(error);
+    // Log the full error stack so we can see exactly what's broken
+    console.error("🔥 feedController error:", error.stack || error);
+
+    // If it's an AxiosError with a response, surface that
+    const errMsg =
+      error.response?.data?.message || error.response?.data || error.message;
+
     res.status(500).json({
       message: "Error fetching personalized feed",
-      error: error.message,
+      error: errMsg,
     });
   }
 };
