@@ -81,6 +81,7 @@ const getUsers = async (req, res) => {
       .status(500)
       .json({ message: "Error fetching users", error: error.message });
   }
+  console.log({ getUsers: error.message });
 };
 
 const getMetrics = async (req, res) => {

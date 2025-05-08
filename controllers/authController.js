@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -74,6 +74,7 @@ const loginUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+    console.error({ loginUser: error.message });
   }
 };
 

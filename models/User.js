@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema(
           postId: String,
           source: String,
           title: String,
+          text: String,
           url: String,
           date: Date,
         },
