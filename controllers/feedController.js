@@ -2,12 +2,15 @@ const User = require("../models/User");
 const {
   fetchTwitterPosts,
   fetchRedditPosts,
+  getRedditPosts,
 } = require("../services/feedService");
 const redisClient = require("../services/redisClient");
 
 const CACHE_TTL = 900; // seconds
 
 const getFeed = async (req, res) => {
+  console.log("🔥  getFeed() called for user:", req.user?.id);
+
   try {
     const userId = req.user.id;
     const cacheKey = `feed:${userId}`;
@@ -43,11 +46,16 @@ const getFeed = async (req, res) => {
       await Promise.all(feedPreference.map(fetchTwitterPosts))
     ).flat();
     const redditRaw = (
-      await Promise.all(feedPreference.map(fetchRedditPosts))
+      await Promise.all(feedPreference.map(getRedditPosts))
     ).flat();
 
-    const twitter = twitterRaw.filter((p) => !reportedIds.has(p.id));
-    const reddit = redditRaw.filter((p) => !reportedIds.has(p.id));
+    // only keep items that actually have an id, and weren’t reported
+    const twitter = twitterRaw.filter(
+      (post) => post && post.id && !reportedIds.has(post.id)
+    );
+    const reddit = redditRaw.filter(
+      (post) => post && post.id && !reportedIds.has(post.id)
+    );
     const combined = [...twitter, ...reddit];
     const payload = { twitter, reddit, combined };
 

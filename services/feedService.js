@@ -50,4 +50,35 @@ async function fetchRedditPosts(subreddit) {
   }
 }
 
-module.exports = { fetchTwitterPosts, fetchRedditPosts };
+// Create a small dedicated client for Reddit with a proper User-Agent:
+const redditClient = axios.create({
+  baseURL: "https://www.reddit.com",
+  timeout: 10000,
+  headers: {
+    // “CreatorHub/1.0” is your app name & version; replace with something meaningful
+    "User-Agent": "CreatorHub/1.0 (by u/enobeeeeee)",
+  },
+});
+
+async function getRedditPosts(subreddit = "javascript") {
+  try {
+    // use the configured redditClient instead of plain axios
+    const res = await redditClient.get(`/r/${subreddit}/hot.json?limit=10`);
+    return res.data.data.children.map((c) => ({
+      id: c.data.id,
+      title: c.data.title,
+      url: c.data.url,
+      source: "reddit",
+      date: new Date(c.data.created_utc * 1000),
+    }));
+  } catch (err) {
+    // now prints the HTTP status + body
+    console.error(
+      "Error in fetchRedditPosts:",
+      err.response?.status,
+      err.response?.data || err.message
+    );
+  }
+}
+
+module.exports = { fetchTwitterPosts, fetchRedditPosts, getRedditPosts };
