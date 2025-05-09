@@ -30,7 +30,7 @@ const redditClient = axios.create({
   baseURL: "https://www.reddit.com",
   timeout: 10000,
   headers: {
-    "User-Agent": "CreatorHub/1.0 (by u/enobeeeeee)",
+    "User-Agent": "web:CreatorHub:v1.0.0 (by /u/enobeeeeee)",
   },
 });
 
