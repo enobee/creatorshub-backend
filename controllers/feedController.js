@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const {
   fetchTwitterPosts,
-  getRedditPosts,
+  fetchRedditPosts,
 } = require("../services/feedService");
 const redisClient = require("../services/redisClient");
 
@@ -28,7 +28,7 @@ const getFeed = async (req, res) => {
       return res.json(JSON.parse(cached));
     }
 
-    console.log("💥 cache miss – generating fresh feed for", userId);
+    console.log("cache miss - generating fresh feed for", userId);
 
     const user = await User.findById(userId)
       .select("preferences reportedFeeds")
@@ -44,7 +44,7 @@ const getFeed = async (req, res) => {
 
     const [twitterRawBatches, redditRawBatches] = await Promise.all([
       Promise.all(feedPrefs.map(fetchTwitterPosts)),
-      Promise.all(feedPrefs.map(getRedditPosts)),
+      Promise.all(feedPrefs.map(fetchRedditPosts)),
     ]);
     const twitterRaw = twitterRawBatches.flat();
     const redditRaw = redditRawBatches.flat();

@@ -34,7 +34,7 @@ const redditClient = axios.create({
   },
 });
 
-async function getRedditPosts(subreddit) {
+async function fetchRedditPosts(subreddit) {
   try {
     const res = await redditClient.get(`/r/${subreddit}/hot.json?limit=10`);
     return res.data.data.children.map((post) => ({
@@ -53,4 +53,4 @@ async function getRedditPosts(subreddit) {
   }
 }
 
-module.exports = { fetchTwitterPosts, getRedditPosts };
+module.exports = { fetchTwitterPosts, fetchRedditPosts };
