@@ -1,4 +1,6 @@
+require("dotenv").config();
 const axios = require("axios");
+const snoowrap = require("snoowrap");
 
 async function fetchTwitterPosts(query = "cat") {
   try {
@@ -53,4 +55,47 @@ async function fetchRedditPosts(subreddit) {
   }
 }
 
-module.exports = { fetchTwitterPosts, fetchRedditPosts };
+const reddit = new snoowrap({
+  userAgent: "creatorshub",
+  clientId: process.env.REDDIT_CLIENT_ID,
+  clientSecret: process.env.REDDIT_CLIENT_SECRET,
+  username: process.env.REDDIT_USERNAME,
+  password: process.env.REDDIT_PASSWORD,
+});
+
+async function getHotPost(subredditName, limit = 10) {
+  try {
+    const posts = await reddit.getSubreddit(subredditName).getHot({ limit });
+    return posts.map((post) => ({
+      title: post.title,
+      score: post.score,
+      url: post.url,
+      author: post.author.name,
+    }));
+  } catch (error) {
+    console.error(`Failed to fetch posts from r/${subredditName}:`, error);
+    throw error;
+  }
+}
+
+async function getRedditPosts(subreddit) {
+  try {
+    const posts = await getHotPost(subreddit, 10); // 'topic' maps to subreddit
+    return posts.map((post) => ({
+      id: post.url, // assuming URL is unique enough
+      title: post.title,
+      url: post.url,
+      score: post.score,
+      source: "reddit",
+      author: post.author,
+      subreddit: subreddit,
+    }));
+  } catch (error) {
+    console.error(
+      `❌ Failed to fetch Reddit posts for subbreddit "${subreddit}":`,
+      error
+    );
+  }
+}
+
+module.exports = { fetchTwitterPosts, fetchRedditPosts, getRedditPosts };
