@@ -53,23 +53,37 @@ const loginUser = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
-    const today = new Date().toDateString();
-    const lastLogin = user.lastLoginDate?.toDateString();
+    const now = new Date();
+    const lastLogin = new Date(user.lastLoginDate || user.createdAt);
+    const msPerDay = 1000 * 60 * 60 * 24;
 
-    if (lastLogin !== today) {
+    const daysSinceLastLogin = Math.floor((now - lastLogin) / msPerDay);
+
+    if (daysSinceLastLogin >= 1) {
       user.credits += 5;
-      user.lastLoginDate = new Date();
+
+      // Login Streak logic
+      if (daysSinceLastLogin === 1) {
+        user.loginStreak = (user.loginStreak || 0) + 1;
+      } else {
+        user.loginStreak = 1;
+      }
+
+      user.lastLoginDate = now;
       await user.save();
     }
+
     const token = jwt.sign(
       { userId: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+
     res.status(200).json({
       message: "Login successful",
       token,
       credits: user.credits,
+      loginStreak: user.loginStreak || 0,
       user: { id: user._id, name: user.name, role: user.role },
     });
   } catch (error) {

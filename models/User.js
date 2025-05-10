@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    loginStreak: {
+      type: Number,
+      default: 1,
+    },
     sharedFeeds: {
       type: [
         {

@@ -48,14 +48,11 @@ const updateProfile = async (req, res) => {
 const getUserStats = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select(
-      "credits lastLoginDate reportedFeeds"
+      "credits loginStreak reportedFeeds"
     );
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const today = new Date();
-    const lastLogin = user.lastLoginDate || user.createdAt;
-    const msPerDay = 1000 * 60 * 60 * 24;
-    const loginStreak = Math.floor((today - lastLogin) / msPerDay);
+    const loginStreak = user.loginStreak;
     const reportedPosts = (user.reportedFeeds || []).length;
 
     res.json({
